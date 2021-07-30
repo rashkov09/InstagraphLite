@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import softuni.exam.instagraphlite.models.dtos.jsonDtos.UserSeedDto;
 import softuni.exam.instagraphlite.models.entities.Picture;
+import softuni.exam.instagraphlite.models.entities.Post;
 import softuni.exam.instagraphlite.models.entities.User;
 import softuni.exam.instagraphlite.repository.UserRepository;
 import softuni.exam.instagraphlite.service.PictureService;
@@ -14,9 +15,9 @@ import softuni.exam.instagraphlite.util.ValidationUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -74,7 +75,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String exportUsersWithTheirPosts() {
-        return null;
+        List<User> result = new ArrayList<>();
+                userRepository.getAllUsersOrderedByCountOfPostsThenById()
+                .forEach(user ->{
+                    Set<Post> sortedPosts = user.getPosts()
+                           .stream().sorted((postOne,postTwo) ->{
+                               return postOne.getPicture().getSize().compareTo(postTwo.getPicture().getSize());
+                           }).collect(Collectors.toCollection(LinkedHashSet::new));
+                    user.setPosts(sortedPosts);
+                    result.add(user);
+                } );
+        return result.stream().map(User::toString).collect(Collectors.joining("\n"));
     }
 
     @Override

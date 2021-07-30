@@ -13,9 +13,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PictureServiceImpl implements PictureService {
+    private final static Double SIZE_FILTER_CRITERIA = 30000.00;
     private final static String PICTURES_FILE_PATH = "src/main/resources/files/pictures.json";
     private final PictureRepository pictureRepository;
     private final Gson gson;
@@ -63,7 +65,10 @@ public class PictureServiceImpl implements PictureService {
 
     @Override
     public String exportPictures() {
-        return null;
+
+        return pictureRepository.findPicturesBySizeGreaterThanOrderBySizeAsc(SIZE_FILTER_CRITERIA).stream()
+                .map(Picture::toString)
+                .collect(Collectors.joining("\n"));
     }
 
     @Override

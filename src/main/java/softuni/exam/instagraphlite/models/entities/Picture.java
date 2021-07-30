@@ -74,4 +74,9 @@ public class Picture extends BaseEntity{
     public int hashCode() {
         return this.getPath().hashCode();
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.2f – %s",getSize(),getPath());
+    }
 }
